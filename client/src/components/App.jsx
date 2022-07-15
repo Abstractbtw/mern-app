@@ -3,6 +3,7 @@ import {BrowserRouter, Route, Routes} from "react-router-dom"
 import Navbar from "./navbar/Navbar"
 import Registration from "./authorization/Registration"
 import Login from "./authorization/Login"
+import Projectlist from "./projectlist/Projectlist"
 import './app.css'
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
             <Route path="/registration" element={<Registration />} />
             <Route path="/login" element={<Login />} />
           </Routes>
+        <Projectlist />
       </div>
     </BrowserRouter>
   );

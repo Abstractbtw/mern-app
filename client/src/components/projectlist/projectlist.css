@@ -1,0 +1,243 @@
+.project_container{
+  padding-top: 100px;
+}
+
+.projects_header{
+  background-color: #E2784D;
+  height: 150px;
+  padding-top: 25px;
+}
+
+.list_header{
+  width: 1000px;
+  margin-left: 15%;
+}
+
+.projectlist{
+  background-color: white;
+  width: 1000px;
+  border: none;
+  border-bottom: 5px solid #E2784D;
+  border-right: 5px solid lightgray;
+  align-items: center;
+  margin-left: 15%;
+  padding-top: 20px;
+}
+
+.project{
+  height: 100px;
+  font-size: 20px;
+}
+
+.project_table{
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+
+tbody tr:nth-child(odd){
+  background-color: #F2F2F2;
+}
+
+table tr td.td2:last-child{
+  word-break: break-word;
+}
+
+.project_td3{
+  padding-left: 7px;
+  width: 15%;
+  font-size: 17px;
+  display: table;
+}
+
+.add_user{
+  margin-bottom: 50px;
+  padding-right: 20px;
+}
+
+.line{
+  border: none;
+  border-bottom: 5px solid lightgray;
+}
+
+.project_input{
+  border: none;
+  border-bottom: 2px solid white;
+  width: 20%;
+  outline: none;
+  transition: all .5s ease-in-out;
+  background: #00000000;
+}
+
+.project_input:hover{
+  width: 100%;
+}
+
+.project_btn {
+  margin-top: 10px;
+  border: none;
+  background-color: white;
+  color: #E2784D;
+  border-radius: 7px;
+  transition: all .2s ease-in-out;
+}
+
+.project_btn:hover{
+  transform: scale(1.1);
+}
+
+::placeholder{
+  color: lightgrey;
+}
+
+.users_btn{
+  margin-top: 10px;
+  border: none;
+  background-color: #E2784D;
+  color: white;
+  border-radius: 7px;
+  font-size: 13px;
+  float: right;
+}
+
+.users_input{
+  border: none;
+  outline: none;
+  background: #00000000;
+
+}
+
+.user:hover .delete_btn{
+  visibility: visible;
+}
+
+.project_input::placeholder{
+  color: white
+}
+
+
+
+
+
+
+
+.project_info{
+  margin-left: 20px;
+}
+
+.project_name{
+  text-align: left;
+}
+
+.project_desc{
+  color: gray;
+  height: 250px;
+  overflow-y: scroll;
+}
+
+.project_term{
+  width: 200px;
+  padding-top: 20px;
+}
+
+.project_users{
+  margin-top: 20px;
+  margin-right: 20px;
+  float: right;
+  width: 40%;
+}
+
+.project_header{
+  font-size: 20px;
+}
+
+.project_comments{
+  height: 500px;
+  overflow-y: scroll;
+}
+
+.project_td1{
+  vertical-align: top;
+}
+
+.project_td2{
+  vertical-align: top;
+  padding-top: 20px;
+  width: 40%;
+}
+
+.project_bottom{
+  display: flex;
+  justify-content: space-between;
+}
+
+.delete_btn{
+  margin-top: 3px;
+  border: none;
+  background-color: #E2784D;
+  color: white;
+  border-radius: 5px;
+  font-size: 10px;
+  float: right;
+  visibility: hidden;
+  max-height: 17px;
+}
+
+.user{
+  border: none;
+  border-bottom: 2px solid lightgray;
+}
+
+.new_user{
+  display: flex;
+}
+
+.users_line{
+  border: none;
+  border-right: 2px solid lightgrey;
+}
+
+.comment{
+  margin-bottom: 5px;
+  background-color: lightgrey;
+  border-radius: 7px;
+  padding: 5px;
+  display: inline-block;
+}
+
+.not_login{
+  margin-left: 40%;
+  font-size: 25px;
+  font-weight: 700;
+  color: grey;
+}
+
+.new_comment{
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+.comment_input{
+  border: none;
+  outline: none;
+  border-bottom: 2px solid #E2784D;
+  background: #00000000;
+}
+
+.comment_btn{
+  border: none;
+  background-color: #E2784D;
+  color: white;
+  border-radius: 5px;
+  font-size: 12px;
+}
+
+.close_btn{
+  margin-top: 90px;
+  margin-bottom: 20px;
+  border: none;
+  background-color: lightgray;
+  color: gray;
+  border-radius: 5px;
+  font-size: 12px;
+  padding: 5px;
+}

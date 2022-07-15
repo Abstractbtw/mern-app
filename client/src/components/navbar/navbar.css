@@ -8,6 +8,7 @@
   border-bottom: 5px solid #E2784D;
   align-items: center;
   margin: 0px;
+  position: fixed;
 }
 
 .nav_header {
@@ -17,6 +18,19 @@
   color:#E2784D;
   font-weight: 700;
   cursor: default;
+}
+
+.authbar{
+  display: flex;
+  justify-content: center;
+}
+
+.nav_auth{
+  margin-right: 50px;
+  font-size: 20px;
+  font-weight: 500;
+  color:#E2784D;
+  cursor: pointer;
 }
 
 .nav_registration {
