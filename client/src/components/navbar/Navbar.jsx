@@ -1,31 +1,31 @@
-import React, {useState, useEffect} from 'react'
+import React from 'react'
 import './navbar.css'
 import {NavLink} from 'react-router-dom'
 
 
 function Navbar() {
 
-  const [activeUser, setActiveUser] = useState()
+  const activeUser=localStorage.getItem('name')
 
-  useEffect(function () {
-    fetch('http://localhost:5000/currentUser', {
-      headers: { 'Content-Type': 'application/json' }
-    })
-    .then(res => res.json())
-    .then(data => setActiveUser(data.name))
-  }, []);
+  const setUser = () => {
+    localStorage.setItem('name', '')
+    document.location.reload()
+  }
 
   return (
     <div className="navbar">
       <div className="nav_header">Projects</div>
       {!activeUser ? (
         <div className="authbar">
-          <div className="nav_login"><NavLink to="/login">Log In</NavLink></div>
+          <button className="nav_login"><NavLink to="/login" style={{ textDecoration: 'none' }}>Log In</NavLink></button>
           <div className="nav_ver_line">|</div>
-          <div className="nav_registration"><NavLink to="/registration">Registration</NavLink></div>
+          <button className="nav_registration"><NavLink to="/registration" style={{ textDecoration: 'none' }}>Registration</NavLink></button>
         </div>
       ) : (
-        <div className="nav_auth">Logged in as: {activeUser}</div>
+        <div>
+          <div className="nav_auth">Logged in as: {activeUser}</div>
+          <button onClick={setUser} className="nav_log_out">Log out</button>
+        </div>
       )}
     </div>
   )

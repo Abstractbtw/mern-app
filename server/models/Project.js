@@ -8,6 +8,8 @@ const Project = new Schema({
     user: String,
     comment: String
   }],
+  from: {type: String},
+  to: {type: String}
 })
 
 module.exports = model('Project', Project)

@@ -29,13 +29,6 @@ const start = async () => {
       });
     })
 
-    app.get('/currentUser', (req, res) => {
-      res.json({
-        name: "Andrey",
-        role: "User"
-      })
-    })
-
     app.listen(PORT, () => {
         console.log('Server started on port', PORT)
     })

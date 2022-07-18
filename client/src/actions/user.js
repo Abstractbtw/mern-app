@@ -13,12 +13,11 @@ export const registration = async (name, password) => {
 export const login = async (name, password) => {
   try{
     const response = await axios.post(`http://localhost:5000/api/auth/login`, {name, password})
-    const currentUser = response.data.user.name
-    console.log(response.data.user.name)
-    alert(currentUser)
-    await axios.get(`http://localhost:5000/currentUser`, currentUser)
+    localStorage.setItem('name', response.data.user.name)
+    localStorage.setItem('role', response.data.user.role)
+    document.location.reload()
   } catch (e) {
-    alert(e)
+    alert(e.response.data.message)
   } 
 }
 
@@ -27,10 +26,10 @@ export const login = async (name, password) => {
 export const addproject = async (name, desc) => {
   try{
     const response = await axios.post(`http://localhost:5000/api/auth/addproject`, {name, desc})
-    alert(response.data.message)
     document.location.reload()
   } catch (e) {
     alert(e.response.data.message)
+    console.log(e.response.data.message)
   }
 }
 
@@ -79,6 +78,17 @@ export const deleteproject = async (name) => {
       const response = await axios.post(`http://localhost:5000/api/auth/deleteproject`, {name})
       document.location.reload()
     }
+  } catch (e) {
+    alert(e.response.data.message)
+  }
+}
+
+
+
+export const addtime = async (name, time) => {
+  try{
+    const response = await axios.post(`http://localhost:5000/api/auth/addtime`, {name, time})
+    document.location.reload()
   } catch (e) {
     alert(e.response.data.message)
   }

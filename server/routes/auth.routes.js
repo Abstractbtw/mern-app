@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken")
 const config = require("config")
 const {check, validationResult} = require("express-validator")
 const router = new Router()
+const fs = require('fs');
 
 
 
@@ -25,13 +26,14 @@ router.post('/registration',
     const {name, password} = req.body
 
     const candidate = await User.findOne({name})
+    const role="User"
 
     if(candidate) {
       return res.status(400).json({message: `User ${name} already exist`})
     }
 
     const hashPassword = await bcrypt.hash(password, 4)
-    const user = new User({name, password: hashPassword})
+    const user = new User({name, password: hashPassword, role})
 
     await user.save()
     return res.json({message: "User was created"})
@@ -59,15 +61,14 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({message: "Invalid password"})
     }
 
-    const token = jwt.sign({id: user.id}, config.get("secretKey"), {expiresIn: "1h"})
-
     res.json({
-      token,
       user: {
         id: user.id,
-        name: user.name
+        name: user.name,
+        role: user.role
       }
     })
+
 
   } catch (e) {
     console.log(e)
@@ -92,6 +93,8 @@ router.post('/addproject',
     }
 
     const {name, desc} = req.body
+    const from = new Date().toLocaleDateString()
+    const to =""
 
     const candidate = await Project.findOne({name})
 
@@ -99,7 +102,7 @@ router.post('/addproject',
       return res.status(400).json({message: `Project ${name} already exist`})
     }
 
-    const project = new Project({name, desc})
+    const project = new Project({name, desc, from, to})
 
     await project.save()
     return res.json({message: "Project was created"})
@@ -209,6 +212,29 @@ router.post('/deleteproject', async (req, res) => {
     })
 
     return res.json()
+
+  } catch (e) {
+    console.log(e)
+    res.send({message: "Server error"})
+  }
+})
+
+
+
+router.post('/addtime', async (req, res) => {
+
+  try {
+
+    const {name, time} = req.body
+
+    await Project.findOneAndUpdate({
+      name: name
+    }, {
+        to: time
+    })
+
+    return res.json()
+
 
   } catch (e) {
     console.log(e)

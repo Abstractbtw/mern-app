@@ -21,7 +21,6 @@
   border-right: 5px solid lightgray;
   align-items: center;
   margin-left: 15%;
-  padding-top: 20px;
 }
 
 .project{
@@ -40,13 +39,6 @@ tbody tr:nth-child(odd){
 
 table tr td.td2:last-child{
   word-break: break-word;
-}
-
-.project_td3{
-  padding-left: 7px;
-  width: 15%;
-  font-size: 17px;
-  display: table;
 }
 
 .add_user{
@@ -76,13 +68,16 @@ table tr td.td2:last-child{
   margin-top: 10px;
   border: none;
   background-color: white;
+  border: 2px solid #00000000;
   color: #E2784D;
   border-radius: 7px;
   transition: all .2s ease-in-out;
 }
 
 .project_btn:hover{
-  transform: scale(1.1);
+  border: 2px solid white;
+  color: white;
+  background-color: #E2784D;
 }
 
 ::placeholder{
@@ -114,12 +109,6 @@ table tr td.td2:last-child{
   color: white
 }
 
-
-
-
-
-
-
 .project_info{
   margin-left: 20px;
 }
@@ -135,7 +124,6 @@ table tr td.td2:last-child{
 }
 
 .project_term{
-  width: 200px;
   padding-top: 20px;
 }
 
@@ -240,4 +228,26 @@ table tr td.td2:last-child{
   border-radius: 5px;
   font-size: 12px;
   padding: 5px;
+}
+
+.time_btn{
+  background-color:#E2784D;
+  font-size: 13px;
+  border: 2px solid #00000000;
+  border-radius: 5px;
+  color: white;
+  transition: all .15s ease-in-out;
+}
+
+.time_btn:hover{
+  background-color: #00000000;
+  border: 2px solid #E2784D;
+  color: #E2784D;
+}
+
+.time_input{
+  border: none;
+  outline: none;
+  border-bottom: 2px solid #E2784D;
+  background-color: #00000000;
 }

@@ -35,34 +35,64 @@
 
 .nav_registration {
   margin-right: 50px;
-  font-size: 20px;
-  font-weight: 500;
-  color: #E2784D;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  background-color: #E2784D;
   cursor: pointer;
-  transition: all .2s ease-in-out;
-  text-decoration: none;
+  border-radius: 7px;
+  transition: all .15s ease-in-out;
+  border: 2px solid #00000000;
+  width: 120px;
 }
 
 .nav_registration:hover {
-  transform: scale(1.05);
+  border: 2px solid #E2784D;
+  background-color: #00000000;
+  color: #E2784D;
 }
 
 .nav_login {
   margin-right: 10px;
-  font-size: 20px;
-  font-weight: 500;
-  color:#E2784D;
+  font-size: 15px;
+  font-weight: 700;
+  color: white;
+  background-color:#E2784D;
   cursor: pointer;
-  transition: all .2s ease-in-out;
-  text-decoration: none;
+  border-radius: 7px;
+  transition: all .15s ease-in-out;
+  border: 2px solid #00000000;
+  width: 120px;
 }
 
 .nav_login:hover {
-  transform: scale(1.1);
+  border: 2px solid #E2784D;
+  background-color: #00000000;
+  color: #E2784D;
 }
 
 .nav_ver_line {
   margin-right: 10px;
   font-size: 20px;
   color:lightgray;
+}
+
+.nav_log_out{
+  font-size: 11px;
+  float: right;
+  font-weight: 600;
+  margin-right: 50px;
+  border: 2px solid #00000000;
+  background-color: #E2784D;
+  color: white;
+  border-radius: 5px;
+  padding: 0 3px;
+  cursor: pointer;
+  transition: all .15s ease-in-out;
+}
+
+.nav_log_out:hover{
+  border: 2px solid #E2784D;
+  background-color: #00000000;
+  color: #E2784D;
 }
