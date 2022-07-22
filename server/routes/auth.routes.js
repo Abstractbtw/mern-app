@@ -2,12 +2,8 @@ const Router = require("express")
 const User = require("../models/User")
 const Project = require("../models/Project")
 const bcrypt = require("bcryptjs")
-const jwt = require("jsonwebtoken")
-const config = require("config")
 const {check, validationResult} = require("express-validator")
 const router = new Router()
-const fs = require('fs');
-
 
 
 router.post('/registration', 
@@ -93,16 +89,26 @@ router.post('/addproject',
     }
 
     const {name, desc} = req.body
-    const from = new Date().toLocaleDateString()
-    const to =""
+    const from = new Date()
+    const startDate = from.getDate() + '.' + (from.getMonth() + 1) + '.' + from.getFullYear()
+    const to = ""
+    const finishDate = ""
+    const status = "opened"
 
-    const candidate = await Project.findOne({name})
+    let including = 0;
 
-    if(candidate) {
+    const candidates = await Project.find({}, {_id: 0, name: 1})
+    candidates.map((candidate) => {
+      if(candidate.name.toLowerCase() === name.toLowerCase()){
+        including = 1
+      }
+    })
+
+    if(including===1) {
       return res.status(400).json({message: `Project ${name} already exist`})
     }
 
-    const project = new Project({name, desc, from, to})
+    const project = new Project({name, desc, startDate, from, finishDate, to, status})
 
     await project.save()
     return res.json({message: "Project was created"})
@@ -180,13 +186,17 @@ router.post('/addcomment', async (req, res) => {
 
     const {name, username, comment} = req.body
 
+    var date = new Date()
+    let commenttime = date.getHours() + ':' + date.getMinutes()
+
     await Project.findOneAndUpdate({
       name: name
     }, {
       $push: {
         comments: {
           user: username,
-          comment: comment
+          comment: comment,
+          time: commenttime,
         }
       }
     })
@@ -202,13 +212,19 @@ router.post('/addcomment', async (req, res) => {
 
 
 
-router.post('/deleteproject', async (req, res) => {
+router.post('/closeproject', async (req, res) => {
   try {
 
     const {name} = req.body
+    const date = new Date()
+    const finishDate = date.getDate() + '.' + (date.getMonth() + 1) + '.' + date.getFullYear()
 
-    await Project.deleteOne({
+    await Project.findOneAndUpdate({
       name: name
+    }, {
+      status: "closed",
+      to: date,
+      finishDate: finishDate
     })
 
     return res.json()
@@ -225,12 +241,14 @@ router.post('/addtime', async (req, res) => {
 
   try {
 
-    const {name, time} = req.body
+    const {name, time, finishDate} = req.body
+
 
     await Project.findOneAndUpdate({
       name: name
     }, {
-        to: time
+        to: time,
+        finishDate: finishDate
     })
 
     return res.json()

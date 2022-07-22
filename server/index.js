@@ -11,7 +11,7 @@ const PORT = config.get('serverPort')
 app.use(corsMiddleware)
 app.use(express.json())
 
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(bodyParser.urlencoded({extended: true}))
 app.use(bodyParser.json())
 
 app.use("/api/auth", authRouter)
@@ -24,6 +24,13 @@ const start = async () => {
   
     app.get('/projects', (req, res) => {
       db.collection("projects").find({}).toArray(function(err, result) {
+        if (err) throw err
+        res.json(result)
+      });
+    })
+
+    app.get('/users', (req, res) => {
+      db.collection("users").find({}).toArray(function(err, result) {
         if (err) throw err
         res.json(result)
       });

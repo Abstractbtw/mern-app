@@ -6,10 +6,14 @@ const Project = new Schema({
   users: [String],
   comments: [{
     user: String,
-    comment: String
+    comment: String,
+    time: String,
   }],
-  from: {type: String},
-  to: {type: String}
+  from: {type: Date},
+  startDate: {type: String},
+  to: {type: Date},
+  finishDate: {type: String},
+  status: {type: String}
 })
 
 module.exports = model('Project', Project)
