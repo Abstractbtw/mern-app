@@ -1,23 +1,23 @@
 import axios from 'axios'
 
-export const registration = async (name, password) => {
+export const registration = async (email, name, password) => {
   try{
-    const response = await axios.post(`http://localhost:5000/api/auth/registration`, {name, password})
-    alert(response.data.message)
-    window.location.replace("http://localhost:3000/")
+    const response = await axios.post(`http://localhost:5000/api/auth/registration`, {email, name, password})
+    window.location.replace("../")
   } catch (e) {
     alert(e.response.data.message)
   }
 }
 
 
-export const login = async (name, password) => {
+export const login = async (email, password) => {
   try{
-    const response = await axios.post(`http://localhost:5000/api/auth/login`, {name, password})
+    const response = await axios.post(`http://localhost:5000/api/auth/login`, {email, password})
     localStorage.setItem('name', response.data.user.name)
+    localStorage.setItem('email', response.data.user.email)
     localStorage.setItem('role', response.data.user.role)
     document.location.reload()
-    window.location.replace("http://localhost:3000/")
+    document.location.replace("../")
   } catch (e) {
     alert(e.response.data.message)
   } 
@@ -39,9 +39,9 @@ export const addproject = async (name, desc) => {
 
 export const addusers = async (name) => {
   try{
-    const username = document.getElementById("new_user").value
-    if(username){
-      const response = await axios.post(`http://localhost:5000/api/auth/addusers`, {name, username})
+    const email = document.getElementById("new_user").value
+    if(email){
+      const response = await axios.post(`http://localhost:5000/api/auth/addusers`, {name, email})
       document.location.reload()
       document.getElementById("update").style.display = "none"
     }

@@ -11,7 +11,6 @@ function Projectlist(){
   const [projects, setProjects] = useState([])
   const [date, setDate] = useState(new Date());
   const [finishDate, setFinishDate] = useState();
-  const [selectedProject, setProject] = useState("")
   const [users, setUsers] = useState([])
   const [opened, setOpened] = useState(true)
   const [closed, setClosed] = useState(false)
@@ -49,7 +48,7 @@ function Projectlist(){
     if (text.length > 0) {
       matches = users.filter(user =>{
         const regex = new RegExp(`${text}`, "gi")
-        return user.name.match(regex)
+        return user.email.match(regex)
       })
     }
     setSuggestions(matches)
@@ -61,6 +60,7 @@ function Projectlist(){
   }
 
 
+  const activeEmail = localStorage.getItem('email')
   const activeUser = localStorage.getItem('name')
   const activeRole = localStorage.getItem('role')
 
@@ -85,6 +85,9 @@ function Projectlist(){
     document.getElementById("update").style.display = "block"
   }
 
+  let countProjects = 0
+  let userProjects = 0
+
 
   return (
     <div>
@@ -95,13 +98,16 @@ function Projectlist(){
           <div style={{fontSize: "23px", margin: "5px"}}>Add user</div>
           <div className="user">
             <div className="new_user">
-              <input id="new_user" className="users_input" type="text" onChange={(event) => (onChangeHandler(event.target.value))} value={text} placeholder="Add user" />
+              <input id="new_user" className="users_input" type="text" onChange={(event) => (onChangeHandler(event.target.value))} value={text} placeholder="Enter email" />
               <button style={{marginRight: "5px"}} className="add_user_btn" onClick={() => (addusers(sessionStorage.getItem("ActiveProject")))}>Add</button>
             </div>
           </div>
           <div className="suggestions">
             {suggestions && suggestions.map((suggestion, index) => 
-              <div key={index} className="suggestion" onClick={() => onSuggestHandler(suggestion.name)}>{suggestion.name}</div>
+              <div key={index} className="suggestion" onClick={() => onSuggestHandler(suggestion.email)}>
+                <div>{suggestion.name}</div>
+                <div style={{fontSize: "10px", margin: "auto", marginLeft: "5px"}}>{suggestion.email}</div>
+              </div>
             )}
 
           </div>
@@ -123,7 +129,7 @@ function Projectlist(){
 
                     <div className="project_top">
                       <div className="project_name">{project.name}</div>
-                      <button className="project_close" onClick={() => (sessionStorage.setItem('Active', "false"), sessionStorage.setItem("ActiveProject", ""), window.location.reload())}>&times;</button>
+                      <button className="project_close" onClick={() => (sessionStorage.setItem('Active', "false"), sessionStorage.setItem("ActiveProject", ""), document.location.reload())}>&times;</button>
                     </div>
 
                     <table className="project_mid">
@@ -158,7 +164,7 @@ function Projectlist(){
                                       {project.users.length > 0 ? (
                                         project.users.map((user, index) => (
                                             <div className="user" key={index}>
-                                              {user}
+                                              {user.name}
                                               {activeRole === "Admin" && project.status === "opened" ? (
                                                 <button className="delete_btn" onClick={() => (deleteuser(project.name, user))}>Delete</button>
                                               ):(<></>)}
@@ -270,13 +276,13 @@ function Projectlist(){
                           (project.status === "opened" && opened) || (project.status === "closed" && closed) ? (
                             <tr className="table_tr" key={index}>
                                 {project.status==="opened" ? (
-                                  <td className="opened_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), window.location.reload())}>
+                                  <td className="opened_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), document.location.reload())}>
                                     <div className="project_name">
                                       <h1>{project.name}</h1>
                                     </div>
                                   </td>
                                 ):(
-                                  <td className="closed_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), window.location.reload())}>
+                                  <td className="closed_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), document.location.reload())}>
                                     <div className="project_name">
                                       <h1>{project.name}</h1>
                                     </div>
@@ -286,7 +292,7 @@ function Projectlist(){
                           ):(<></>)
                         ))
                       ):(
-                        <tr><td><h1>No projects</h1></td></tr>
+                        <tr><td><h1 className="not_login">No projects</h1></td></tr>
                       )}
 
 
@@ -312,18 +318,20 @@ function Projectlist(){
 
                       {projects.length > 0 ? (
                         projects.map((project, index) => (
-                          <>
-                            { project.users.includes(activeUser) ? (
+                          project.users.map(user => (user.email.includes(activeEmail) ? (userProjects=1) : (<></>))),
+                            (userProjects ? (
+                              (project.status === "opened" ? (countProjects+=1):(<></>)),
                               (project.status === "opened" && opened) || (project.status === "closed" && closed) ? (
                                 <tr className="table_tr" key={index}>
                                   {project.status==="opened" ? (
-                                    <td className="opened_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), window.location.reload())}>
+                                    <td className="opened_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), document.location.reload())}>
                                       <div className="project_name">
                                         <h1>{project.name}</h1>
                                       </div>
+                                      <div></div>
                                     </td>
                                   ):(
-                                    <td className="closed_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), window.location.reload())}>
+                                    <td className="closed_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), document.location.reload())}>
                                       <div className="project_name">
                                         <h1>{project.name}</h1>
                                       </div>
@@ -333,12 +341,14 @@ function Projectlist(){
                               ):(<></>)
                             ) : (
                               <></>
-                            )}
-                          </>
+                            ))
                         ))
                       ):(
-                        <tr><td><h1>No projects</h1></td></tr>
+                        <tr><td><h1 className="not_login">No projects</h1></td></tr>
                       )}
+                      {(countProjects === 0) && (!closed) ? (
+                        <tr><td><h1 className="not_login">No opened projects</h1></td></tr>
+                      ):(<></>)}
 
 
                     </tbody>

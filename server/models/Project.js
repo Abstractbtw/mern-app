@@ -3,7 +3,10 @@ const {Schema, model, ObjectId} = require("mongoose")
 const Project = new Schema({
   name: {type: String, required: true},
   desc: {type: String, required: true},
-  users: [String],
+  users: [{
+    name: String,
+    email: String,
+  }],
   comments: [{
     user: String,
     comment: String,

@@ -13,10 +13,10 @@ function App() {
       <div className='container'>
         <Navbar />
           <Routes>
+            <Route path="/" element={<Projectlist /> }/>
             <Route path="/registration" element={<Registration />} />
             <Route path="/login" element={<Login />} />
           </Routes>
-        <Projectlist />
       </div>
     </BrowserRouter>
   );

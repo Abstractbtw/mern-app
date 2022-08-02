@@ -17,9 +17,9 @@ function Navbar() {
       <div className="nav_header">Projects</div>
       {!activeUser ? (
         <div className="authbar">
-          <button className="nav_login"><NavLink to="/login" style={{ textDecoration: 'none' }}>Log In</NavLink></button>
+          <NavLink to="/login" className="nav_login">Log In</NavLink>
           <div className="nav_ver_line">|</div>
-          <button className="nav_registration"><NavLink to="/registration" style={{ textDecoration: 'none' }}>Registration</NavLink></button>
+          <NavLink to="/registration" className="nav_registration">Registration</NavLink>
         </div>
       ) : (
         <div>
