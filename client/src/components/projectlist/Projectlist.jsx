@@ -1,8 +1,14 @@
 import React, {useState, useEffect} from 'react'
 import './projectlist.css'
-import {addproject, addusers, deleteuser, addcomment, deleteproject, addtime, checkclose} from '../../actions/user'
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import {addproject, addcomment, addtime, checkclose} from '../../actions/user'
+import DatePicker from "react-datepicker"
+import "react-datepicker/dist/react-datepicker.css"
+import ReactPaginate from 'react-paginate'
+
+import AddUser from "../popups/AddUser"
+import CloseProject from "../popups/CloseProject"
+import DeleteProject from "../popups/DeleteProject"
+import DeleteUser from "../popups/DeleteUser"
 
 function Projectlist(){
 
@@ -11,12 +17,12 @@ function Projectlist(){
   const [projects, setProjects] = useState([])
   const [date, setDate] = useState(new Date());
   const [finishDate, setFinishDate] = useState();
-  const [users, setUsers] = useState([])
+
   const [opened, setOpened] = useState(true)
   const [closed, setClosed] = useState(false)
 
   useEffect(() => {
-    fetch('http://localhost:5000/projects', {
+    fetch(`${process.env.REACT_APP_API_URL}/projects`, {
       headers : { 
         'Content-Type': 'application/json',
         'Accept': 'application/json'
@@ -26,43 +32,22 @@ function Projectlist(){
     .then(data => setProjects(data))
   }, []);
 
-  useEffect(() => {
-    fetch('http://localhost:5000/users', {
-      headers : { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-        }
-    })
-    .then(res => res.json())
-    .then(data => setUsers(data))
-    
-  }, []);
-
-
-  const [text, setText] = useState("")
-  const [suggestions, setSuggestions] = useState([])
-
-  const onChangeHandler = (text) => {
-    setText(text)
-    let matches = []
-    if (text.length > 0) {
-      matches = users.filter(user =>{
-        const regex = new RegExp(`${text}`, "gi")
-        return user.email.match(regex)
-      })
+  const openedProjects = []
+  const closedProjects = []
+  projects.map(project => {
+    if(project.status === "opened"){
+      openedProjects.push(project)
     }
-    setSuggestions(matches)
-  }
-
-  const onSuggestHandler = (text) => {
-    setText(text)
-    setSuggestions([])
-  }
-
+    else{
+      closedProjects.push(project)
+    }
+  })
 
   const activeEmail = localStorage.getItem('email')
   const activeUser = localStorage.getItem('name')
   const activeRole = localStorage.getItem('role')
+
+  const [comment, setComment] = useState("")
 
 
   const showOpened = (event) => {
@@ -81,46 +66,179 @@ function Projectlist(){
     }
   }
 
-  function showupdate() {
-    document.getElementById("update").style.display = "block"
+  let countProjects = 0
+
+  function openProject(name){
+    sessionStorage.setItem('Active', "true")
+    sessionStorage.setItem("ActiveProject", name)
+    document.location.reload()
   }
 
-  let countProjects = 0
-  let userProjects = 0
+  const [deletedProject, setDeletedProject] = useState()
+  const [deletedUser, setDeletedUser] = useState()
 
+  const [showAdd, setShowAdd] = useState(false)
+  const [showClose, setShowClose] = useState(false)
+  const [showDeleteProject, setShowDeleteProject] = useState(false)
+  const [showDeleteUser, setShowDeleteUser] = useState(false)
+
+  const activeUserProjects = []
+  const userOpenedProjects = []
+  const userClosedProjects = []
+  projects.map(project => {
+    project.users.map(user => (user.email.includes(activeEmail) ? (
+        activeUserProjects.push(project)
+    ):("")
+    ))
+  })
+  activeUserProjects.map(project => {
+    if(project.status === "opened"){
+      userOpenedProjects.push(project)
+    }
+    else{
+      userClosedProjects.push(project)
+    }
+  })
+
+  function Projects({ currentProjects }) {
+    return (
+      currentProjects &&
+      currentProjects.map((project, index) => (
+        (project.status === "opened" && opened) || (project.status === "closed" && closed) ? (
+          <tr className="table_project" key={index}>
+            <td className="project_name" onClick={() => (openProject(project.name))}>{project.name}</td>
+            <td className="table_desc" onClick={() => (openProject(project.name))}>{project.desc}</td>
+            {project.status === "opened" ? (
+              <td className="table_active" style={{color: "green"}} onClick={() => (openProject(project.name))}>{project.status}</td>
+            ) : (
+              <td className="table_active" style={{color: "red"}} onClick={() => (openProject(project.name))}>{project.status}</td>
+            )}
+            <td className="table_active" onClick={() => (openProject(project.name))}>{project.startDate}</td>
+            {project.finishDate ? (
+              <td className="table_active" onClick={() => (openProject(project.name))}>{project.finishDate}</td>
+            ):(
+              <td className="table_active" onClick={() => (openProject(project.name))}>-</td>
+            )}
+            {(project.status === "closed") && (activeRole !== "User") ? (<td className="project_delete"><button className="main_btn" onClick={() => (setShowDeleteProject(true), setDeletedProject(project.name))}>Delete</button></td>):(<></>)}
+          </tr>
+        ):("")
+      ))
+    )
+  }
+
+  function ProjectsCount({currentProjects}){
+    return(
+      <>
+        {currentProjects &&
+          <tr style={{backgroundColor: "white", borderTop: "5px solid lightgray"}}>
+            <td>
+              <div style={{paddingLeft: "5px", color: "gray"}}>Projects on page: {currentProjects.length}</div>
+            </td>
+          </tr>
+        }
+      </>
+    )
+  }
+
+  let projectsPerPage = 5
+  
+  function PaginatedProjects() {
+
+    const [currentProjects, setCurrentProjects] = useState(null)
+    const [pageCount, setPageCount] = useState(0)
+    const [projectsOffset, setProjectOffset] = useState(0)
+    const [currentProjectsLength, setCurrentProjectsLength] = useState(0)
+
+    useEffect(() => {
+      if (opened && closed) {
+        if(activeRole === "User"){
+          setCurrentProjectsLength(activeUserProjects.length)
+          const endOffset = projectsOffset + projectsPerPage
+          setCurrentProjects(activeUserProjects.slice(projectsOffset, endOffset))
+          setPageCount(Math.ceil(activeUserProjects.length / projectsPerPage))
+        }else{
+          setCurrentProjectsLength(projects.length)
+          const endOffset = projectsOffset + projectsPerPage
+          setCurrentProjects(projects.slice(projectsOffset, endOffset))
+          setPageCount(Math.ceil(projects.length / projectsPerPage))
+        }
+      } else if (opened && !closed){
+        if(activeRole === "User"){
+          setCurrentProjectsLength(userOpenedProjects.length)
+          const endOffset = projectsOffset + projectsPerPage
+          setCurrentProjects(userOpenedProjects.slice(projectsOffset, endOffset))
+          setPageCount(Math.ceil(userOpenedProjects.length / projectsPerPage))
+        }else{
+          setCurrentProjectsLength(openedProjects.length)
+          const endOffset = projectsOffset + projectsPerPage
+          setCurrentProjects(openedProjects.slice(projectsOffset, endOffset))
+          setPageCount(Math.ceil(openedProjects.length / projectsPerPage))
+        }
+      } else {
+        if(activeRole === "User"){
+          setCurrentProjectsLength(userClosedProjects.length)
+          const endOffset = projectsOffset + projectsPerPage
+          setCurrentProjects(userClosedProjects.slice(projectsOffset, endOffset))
+          setPageCount(Math.ceil(userClosedProjects.length / projectsPerPage))
+        }else{
+          setCurrentProjectsLength(closedProjects.length)
+          const endOffset = projectsOffset + projectsPerPage
+          setCurrentProjects(closedProjects.slice(projectsOffset, endOffset))
+          setPageCount(Math.ceil(closedProjects.length / projectsPerPage))
+        }
+      }
+    }, [projectsOffset, projectsPerPage])
+
+    const handlePageClick = (event) => {
+      const newOffset = (event.selected * projectsPerPage) % currentProjectsLength
+      setProjectOffset(newOffset)
+    }
+  
+    return (
+      <>
+      {currentProjectsLength > 0 ? (
+        <>
+          <Projects currentProjects={currentProjects} />
+          <ProjectsCount currentProjects={currentProjects} />
+          <tr style={{backgroundColor: "white"}}>
+            <td>
+              <ReactPaginate
+                breakLabel="..."
+                nextLabel=">"
+                previousLabel="<"
+                onPageChange={handlePageClick}
+                pageRangeDisplayed={3}
+                pageCount={pageCount}
+                renderOnZeroPageCount={null}
+                containerClassName={'pagination'}
+                activeClassName={'active'}
+              />
+            </td>
+          </tr>
+        </>
+        ):(
+          <tr style={{backgroundColor: "white", borderTop: "5px solid lightgray"}}><td>No projects found</td></tr>
+        )}
+      </>
+    )
+  }
 
   return (
     <div>
       
+      <AddUser trigger={showAdd} setTrigger={setShowAdd} />
 
-      <div id="update" className="add_user_popup_bg">
-        <div className="add_user_popup">
-          <div style={{fontSize: "23px", margin: "5px"}}>Add user</div>
-          <div className="user">
-            <div className="new_user">
-              <input id="new_user" className="users_input" type="text" onChange={(event) => (onChangeHandler(event.target.value))} value={text} placeholder="Enter email" />
-              <button style={{marginRight: "5px"}} className="add_user_btn" onClick={() => (addusers(sessionStorage.getItem("ActiveProject")))}>Add</button>
-            </div>
-          </div>
-          <div className="suggestions">
-            {suggestions && suggestions.map((suggestion, index) => 
-              <div key={index} className="suggestion" onClick={() => onSuggestHandler(suggestion.email)}>
-                <div>{suggestion.name}</div>
-                <div style={{fontSize: "10px", margin: "auto", marginLeft: "5px"}}>{suggestion.email}</div>
-              </div>
-            )}
+      <CloseProject trigger={showClose} setTrigger={setShowClose} />
 
-          </div>
-        </div>
-      </div>
+      <DeleteProject trigger={showDeleteProject} setTrigger={setShowDeleteProject} project={deletedProject} />
 
-
+      <DeleteUser trigger={showDeleteUser} setTrigger={setShowDeleteUser} project={deletedProject} user={deletedUser} />
 
       {sessionStorage.getItem('Active') !== "false" ? (
         <div>
           {projects.map((project, index) => (
             <div key={index}>
-              {project.name.includes(sessionStorage.getItem("ActiveProject")) ? (
+              {project.name === sessionStorage.getItem("ActiveProject") ? (
                 project.status === "opened" ? (
                 checkclose(project.name, project.to)
                 ):(<></>),
@@ -128,7 +246,7 @@ function Projectlist(){
                   <div className="project_main">
 
                     <div className="project_top">
-                      <div className="project_name">{project.name}</div>
+                      <div className="opened_project_name">{project.name}</div>
                       <button className="project_close" onClick={() => (sessionStorage.setItem('Active', "false"), sessionStorage.setItem("ActiveProject", ""), document.location.reload())}>&times;</button>
                     </div>
 
@@ -166,7 +284,7 @@ function Projectlist(){
                                             <div className="user" key={index}>
                                               {user.name}
                                               {activeRole === "Admin" && project.status === "opened" ? (
-                                                <button className="delete_btn" onClick={() => (deleteuser(project.name, user))}>Delete</button>
+                                                <button className="delete_btn" onClick={() => (setShowDeleteUser(true), setDeletedUser(user), setDeletedProject(project.name))}>Delete</button>
                                               ):(<></>)}
                                               <br />
                                             </div>
@@ -178,7 +296,7 @@ function Projectlist(){
                                       {activeRole === "Admin" && project.status === "opened" ? (
                                         <div>
                                           <div className="user">
-                                            <button className="add_user_btn" onClick={() => showupdate()}>Add user</button>
+                                            <button className="add_user_btn" onClick={() => (setShowAdd(true))}>Add user</button>
                                           </div>
                                         </div>
                                       ):(<></>)}
@@ -209,8 +327,12 @@ function Projectlist(){
                             </div>
                             {activeRole === "User" && project.status === "opened" ? (
                               <div className="new_comment">
-                                <input id="new_comment" className="comment_input" type="text" placeholder="Comment..."/>
-                                <button className="comment_btn" onClick={() => (addcomment(project.name, activeUser))}>Send</button>
+                                <input className="comment_input" type="text" placeholder="Comment..." value={comment} onChange={(event) => setComment(event.target.value)}/>
+                                {comment ? (
+                                    <button className="comment_btn" onClick={() => (addcomment(project.name, activeUser, comment), setComment(""))}>Send</button>
+                                  ):(
+                                    <button className="comment_btn" style={{backgroundColor: "gray"}} disabled>Send</button>
+                                  )}
                               </div>
                             ):(<></>)}
                           </td>
@@ -228,7 +350,7 @@ function Projectlist(){
                       </div>
                       {activeRole === "Admin" && project.status === "opened" ? (
                         <div style={{marginLeft: "auto"}}>
-                          <button className="close_btn" onClick={() => deleteproject(project.name)}>Close project</button>
+                          <button className="close_btn" onClick={() => setShowClose(true)}>Close project</button>
                         </div>
                       ):(<></>)}
                     </div>
@@ -255,7 +377,11 @@ function Projectlist(){
                     <div>
                       <input className="project_input" onChange={(event)=>setName(event.target.value)} value={Projectname} type="text" placeholder="Enter name" /><br />
                       <input className="project_input" onChange={(event)=>setDesc(event.target.value)} value={Projectdesc} type="text" placeholder="Enter description" /><br />
-                      <button className="project_btn" onClick={() => (addproject(Projectname, Projectdesc), setName(""), setDesc(""))}>Add project</button>
+                      {Projectname && Projectdesc ? (
+                        <button className="project_btn" onClick={() => (addproject(Projectname, Projectdesc), setName(""), setDesc(""))}>Add project</button>
+                      ):(
+                        <button className="disabled_project_btn" disabled>Add project</button>
+                      )}
                     </div>
                   </div>
                   <div className="filter">
@@ -270,30 +396,16 @@ function Projectlist(){
                     </thead>
                     <tbody>
 
+                      <tr style={{borderLeft: "5px solid lightgray", borderRight: "5px solid lightgray", cursor: "default"}}>
+                        <td className="table_head">Project name</td>
+                        <td className="table_head">Description</td>
+                        <td className="table_head">Status</td>
+                        <td className="table_head">Date of start</td>
+                        <td className="table_head">Date of close</td>
+                      </tr>
+                      
 
-                      {projects.length > 0 ? (
-                        projects.map((project, index) => (
-                          (project.status === "opened" && opened) || (project.status === "closed" && closed) ? (
-                            <tr className="table_tr" key={index}>
-                                {project.status==="opened" ? (
-                                  <td className="opened_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), document.location.reload())}>
-                                    <div className="project_name">
-                                      <h1>{project.name}</h1>
-                                    </div>
-                                  </td>
-                                ):(
-                                  <td className="closed_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), document.location.reload())}>
-                                    <div className="project_name">
-                                      <h1>{project.name}</h1>
-                                    </div>
-                                  </td>
-                                )}
-                            </tr>
-                          ):(<></>)
-                        ))
-                      ):(
-                        <tr><td><h1 className="not_login">No projects</h1></td></tr>
-                      )}
+                      <PaginatedProjects/>
 
 
                     </tbody>
@@ -315,41 +427,15 @@ function Projectlist(){
                     </thead>
                     <tbody>
 
+                      <tr style={{borderLeft: "5px solid lightgray", borderRight: "5px solid lightgray", cursor: "default"}}>
+                        <td className="table_head">Project name</td>
+                        <td className="table_head">Description</td>
+                        <td className="table_head">Status</td>
+                        <td className="table_head">Date of start</td>
+                        <td className="table_head">Date of close</td>
+                      </tr>
 
-                      {projects.length > 0 ? (
-                        projects.map((project, index) => (
-                          project.users.map(user => (user.email.includes(activeEmail) ? (userProjects=1) : (<></>))),
-                            (userProjects ? (
-                              (project.status === "opened" ? (countProjects+=1):(<></>)),
-                              (project.status === "opened" && opened) || (project.status === "closed" && closed) ? (
-                                <tr className="table_tr" key={index}>
-                                  {project.status==="opened" ? (
-                                    <td className="opened_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), document.location.reload())}>
-                                      <div className="project_name">
-                                        <h1>{project.name}</h1>
-                                      </div>
-                                      <div></div>
-                                    </td>
-                                  ):(
-                                    <td className="closed_project" onClick={() => (sessionStorage.setItem('Active', "true"), sessionStorage.setItem("ActiveProject", project.name), document.location.reload())}>
-                                      <div className="project_name">
-                                        <h1>{project.name}</h1>
-                                      </div>
-                                    </td>
-                                  )}
-                                </tr>
-                              ):(<></>)
-                            ) : (
-                              <></>
-                            ))
-                        ))
-                      ):(
-                        <tr><td><h1 className="not_login">No projects</h1></td></tr>
-                      )}
-                      {(countProjects === 0) && (!closed) ? (
-                        <tr><td><h1 className="not_login">No opened projects</h1></td></tr>
-                      ):(<></>)}
-
+                      <PaginatedProjects/>
 
                     </tbody>
                   </table>

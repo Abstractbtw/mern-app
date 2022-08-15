@@ -42,6 +42,16 @@ table tr td.td2:last-child{
   width: 100%;
 }
 
+.disabled_project_btn {
+  margin-top: 10px;
+  border: none;
+  background-color: #00000030;
+  border: 2px solid #00000000;
+  color: #E2784D;
+  border-radius: 7px;
+  cursor: pointer;
+}
+
 .project_btn {
   margin-top: 10px;
   border: none;
@@ -72,6 +82,26 @@ table tr td.td2:last-child{
   font-size: 13px;
   float: right;
   cursor: pointer;
+}
+
+.main_btn{
+  font-size: 13px;
+  float: right;
+  font-weight: 600;
+  margin-right: 50px;
+  border: 2px solid #00000000;
+  background-color: #E2784D;
+  color: white;
+  border-radius: 5px;
+  padding: 0 3px;
+  cursor: pointer;
+  transition: all .15s ease-in-out;
+}
+
+.main_btn:hover{
+  border: 2px solid #E2784D;
+  background-color: #00000000;
+  color: #E2784D;
 }
 
 .users_input{
@@ -171,49 +201,67 @@ table tr td.td2:last-child{
 .project_table{
   table-layout: fixed;
   border-collapse: collapse;
-  border-right: 5px solid lightgray;
+  border: 0;
 }
 
-.opened_project{
-  display:inline-flex;
+.table_project{
   cursor: pointer;
-  width: 1000px;
-  padding-left: 10px;
   border: 1px solid lightgray;
+  border-left: 5px solid lightgray;
+  border-right: 5px solid lightgray;
   margin-top: 10px;
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
   background-color: #F2F2F2;
   transition: all .15s ease-in-out;
+  height: 30px;
+  padding: 5px;
 }
 
-.opened_project:hover{
+.table_project:hover{
   background-color: lightgray;
-}
-
-.closed_project{
-  display:inline-flex;
-  cursor: pointer;
-  width: 1000px;
-  padding-left: 10px;
-  border: 1px solid lightgray;
-  margin-top: 10px;
-  border-top-left-radius: 12px;
-  border-bottom-left-radius: 12px;
-  background-color: #D8D8D8;
-  transition: all .15s ease-in-out;
-}
-
-.closed_project:hover{
-  background-color: #A4A4A4;
 }
 
 .project_name{
   float: left;
   font-size: 30px;
   color: gray;
+  max-width: 400px;
+  width: 100%;
+  padding: 5px;
+  padding-left: 10px;
+  word-break: break-word;
 }
 
+.opened_project_name{
+  float: left;
+  font-size: 30px;
+  color: gray;
+}
+
+.table_desc{
+  color: gray;
+  max-width: 400px;
+  padding: 5px;
+  overflow-x: hidden;
+  white-space: nowrap;
+  border: 1px solid lightgray;
+}
+
+.table_active{
+  color: gray;
+  padding: 5px 10px;
+  text-align: center;
+  border: 1px solid lightgray;
+}
+
+.project_delete{
+  margin: 10px;
+  margin-left: 15px;
+  position: absolute;
+}
+
+tr:nth-child(even) {
+  background-color: rgb(228, 228, 228);
+}
 
 
 
@@ -462,4 +510,62 @@ table tr td.td2:last-child{
 
 .add_user_btn:hover{
   background-color: gray;
+}
+
+.table_head{
+  color: gray;
+  font-size: 20px;
+  font-weight: 700;
+  padding: 10px;
+}
+
+ul {
+  margin: 0;
+  padding: 0;
+}
+
+.pagination {
+  padding-left: -50px;
+}
+
+.pagination > li {
+  display: inline-block;
+  list-style: none;
+}
+.pagination > li > a,
+.pagination > li > span {
+  position: relative;
+  float: left;
+  padding: 3px 10px;
+  border: 3px solid #E2784D;
+  border-radius: 10px;
+  text-decoration: none;
+  color: black;
+  background-color: #fff;
+  margin-left: 5px;
+  cursor: pointer;
+  transition-duration: 0.2s;
+}
+
+.pagination > li.disabled > a {
+  color: black;
+  background-color: #fff;
+  border: 3px solid gray;
+}
+
+.pagination > li.disabled:hover > a {
+  color: black;
+  background-color: #fff;
+  border: 3px solid gray;
+}
+
+.pagination > li.active > a {
+  color: #fff;
+  background-color: #E2784D;
+  border: 3px solid white;
+}
+
+.pagination > li > a:hover {
+  background-color:  #E2784D;
+  color: white;
 }

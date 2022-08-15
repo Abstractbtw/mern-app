@@ -2,36 +2,15 @@ const Router = require("express")
 const User = require("../models/User")
 const Project = require("../models/Project")
 const bcrypt = require("bcryptjs")
-const {check, validationResult} = require("express-validator")
 const router = new Router()
 
 
 router.post('/registration',
-check('email').isEmail(),
   async (req, res) => {
   try {
 
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        return res.status(422).json({message: `Value is not email`, errors})
-    }
-
     const {email, name, password} = req.body
-
-    if (name.length === 0){
-      return res.status(422).json({message: `Fill the name`, errors})
-    }
-
-    if (password.length > 12 || password.length < 3){
-      return res.status(422).json({message: `Password must be longer than 3 and shorter than 12 symbols`, errors})
-    }
-
-    const candidate = await User.findOne({email})
     const role="User"
-
-    if(candidate) {
-      return res.status(400).json({message: `User with this email already exist`})
-    }
 
     const hashPassword = await bcrypt.hash(password, 4)
     const user = new User({email, name, password: hashPassword, role})
@@ -53,23 +32,18 @@ router.post('/login', async (req, res) => {
 
     const {email, password} = req.body
     const user = await User.findOne({email})
-    if (!user) {
-      return res.status(404).json({message: "User not found"})
-    }
 
     const isPassValid = bcrypt.compareSync(password, user.password)
-    if (!isPassValid) {
-      return res.status(400).json({message: "Invalid password"})
+    if (isPassValid) {
+      res.json({
+        user: {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role
+        }
+      })
     }
-
-    res.json({
-      user: {
-        id: user.id,
-        email: user.email,
-        name: user.name,
-        role: user.role
-      }
-    })
 
 
   } catch (e) {
@@ -81,18 +55,9 @@ router.post('/login', async (req, res) => {
 
 
 router.post('/addproject',
-  [
-    check('name', 'Enter name').isLength({min:1}),
-    check('desc', 'Enter description').isLength({min:1})
-  ], 
   async (req, res) => {
 
   try {
-
-    const errors = validationResult(req)
-    if (!errors.isEmpty()) {
-        return res.status(400).json({message: "Fill all the fields", errors})
-    }
 
     const {name, desc} = req.body
     const from = new Date()
@@ -134,28 +99,32 @@ router.post('/addusers', async (req, res) => {
     const {name, email} = req.body
 
     const user = await User.findOne({email: email})
-    if (!user) {
-      return res.status(404).json({message: "User not found"})
-    }
+    if (user) {
+      const candidate = await Project.findOne({name: name})
+      let exists = 0
 
-    const candidate = await Project.findOne({name: name, users: {email: email}})
 
-    if(candidate) {
-      return res.status(400).json({message: `User ${username} already in project`})
-    }
-
-    await Project.findOneAndUpdate({
-      name: name
-    }, {
-      $push: {
-        users: {
-          name: user.name,
-          email: email
+      candidate.users.map(user => {
+        if(user.email === email){
+          console.log(user.email)
+          exists = 1
         }
-      }
-    })
+      })
 
-    return res.json()
+      if (exists === 0) {
+        await Project.findOneAndUpdate({
+          name: name
+        }, {
+          $push: {
+            users: {
+              name: user.name,
+              email: email
+            }
+          }
+        })
+        return res.json()
+      }
+    }
 
 
   } catch (e) {
@@ -244,6 +213,24 @@ router.post('/closeproject', async (req, res) => {
   }
 })
 
+
+
+router.post('/deleteproject', async (req, res) => {
+  try {
+
+    const {name} = req.body
+
+    await Project.deleteOne({
+      name: name
+    })
+
+    return res.json()
+
+  } catch (e) {
+    console.log(e)
+    res.send({message: "Server error"})
+  }
+})
 
 
 router.post('/addtime', async (req, res) => {

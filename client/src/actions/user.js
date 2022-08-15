@@ -2,7 +2,7 @@ import axios from 'axios'
 
 export const registration = async (email, name, password) => {
   try{
-    const response = await axios.post(`http://localhost:5000/api/auth/registration`, {email, name, password})
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/registration`, {email, name, password})
     window.location.replace("../")
   } catch (e) {
     alert(e.response.data.message)
@@ -12,7 +12,7 @@ export const registration = async (email, name, password) => {
 
 export const login = async (email, password) => {
   try{
-    const response = await axios.post(`http://localhost:5000/api/auth/login`, {email, password})
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {email, password})
     localStorage.setItem('name', response.data.user.name)
     localStorage.setItem('email', response.data.user.email)
     localStorage.setItem('role', response.data.user.role)
@@ -27,25 +27,19 @@ export const login = async (email, password) => {
 
 export const addproject = async (name, desc) => {
   try{
-    const response = await axios.post(`http://localhost:5000/api/auth/addproject`, {name, desc})
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/addproject`, {name, desc})
     document.location.reload()
   } catch (e) {
     alert(e.response.data.message)
-    console.log(e.response.data.message)
   }
 }
 
 
 
-export const addusers = async (name) => {
+export const addusers = async (name, email) => {
   try{
-    const email = document.getElementById("new_user").value
-    if(email){
-      const response = await axios.post(`http://localhost:5000/api/auth/addusers`, {name, email})
-      document.location.reload()
-      document.getElementById("update").style.display = "none"
-    }
-    else alert("Empty field")
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/addusers`, {name, email})
+    document.location.reload()
   } catch (e) {
     alert(e.response.data.message)
   }
@@ -55,11 +49,8 @@ export const addusers = async (name) => {
 
 export const deleteuser = async (name, username) => {
   try{
-    const answer = window.confirm("Are you sure?")
-    if (answer) {
-      const response = await axios.post(`http://localhost:5000/api/auth/deleteuser`, {name, username})
-      document.location.reload()
-    }
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/deleteuser`, {name, username})
+    document.location.reload()
   } catch (e) {
     alert(e.response.data.message)
   }
@@ -67,14 +58,21 @@ export const deleteuser = async (name, username) => {
 
 
 
-export const addcomment = async (name, username) => {
+export const addcomment = async (name, username, comment) => {
   try{
-    let comment = document.getElementById("new_comment").value
-    if(comment){
-      const response = await axios.post(`http://localhost:5000/api/auth/addcomment`, {name, username, comment})
-      document.location.reload()
-    }
-    else alert("Empty comment")
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/addcomment`, {name, username, comment})
+    document.location.reload()
+  } catch (e) {
+    alert(e.response.data.message)
+  }
+}
+
+
+
+export const closeproject = async (name) => {
+  try{
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/closeproject`, {name})
+    document.location.reload()
   } catch (e) {
     alert(e.response.data.message)
   }
@@ -84,13 +82,11 @@ export const addcomment = async (name, username) => {
 
 export const deleteproject = async (name) => {
   try{
-    const answer = window.confirm("Are you sure?")
-    if (answer) {
-      const response = await axios.post(`http://localhost:5000/api/auth/closeproject`, {name})
-      document.location.reload()
-    }
+    const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/deleteproject`, {name})
+    document.location.reload()
   } catch (e) {
     alert(e.response.data.message)
+    console.log(e.response.data.message)
   }
 }
 
@@ -98,9 +94,8 @@ export const deleteproject = async (name) => {
 
 export const addtime = async (name, time, from, finishDate) => {
   try{
-    const answer = window.confirm("Are you sure?")
-    if (answer && Date.parse(time) >= Date.parse(from)) {
-      const response = await axios.post(`http://localhost:5000/api/auth/addtime`, {name, time, finishDate})
+    if (Date.parse(time) >= Date.parse(from)) {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/addtime`, {name, time, finishDate})
       document.location.reload()
     }
     else alert("Wrong date")
@@ -115,7 +110,7 @@ export const checkclose = async (name, to) => {
   try{
     const now = new Date()
     if (Date.parse(now) >= Date.parse(to)) {
-      const response = await axios.post(`http://localhost:5000/api/auth/closeproject`, {name})
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/closeproject`, {name})
       document.location.reload()
     }
   } catch (e) {
